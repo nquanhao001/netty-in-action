@@ -24,13 +24,13 @@ import java.util.logging.Logger;
 
 /**
  * @author lilinfeng
- * @date 2014年2月14日
  * @version 1.0
+ * @date 2014年2月14日
  */
 public class TimeClientHandler extends ChannelHandlerAdapter {
 
     private static final Logger logger = Logger
-	    .getLogger(TimeClientHandler.class.getName());
+            .getLogger(TimeClientHandler.class.getName());
 
     private final ByteBuf firstMessage;
 
@@ -38,32 +38,32 @@ public class TimeClientHandler extends ChannelHandlerAdapter {
      * Creates a client-side handler.
      */
     public TimeClientHandler() {
-	byte[] req = "QUERY TIME ORDER".getBytes();
-	firstMessage = Unpooled.buffer(req.length);
-	firstMessage.writeBytes(req);
+        byte[] req = "QUERY TIME ORDER".getBytes();
+        firstMessage = Unpooled.buffer(req.length);
+        firstMessage.writeBytes(req);
 
     }
 
     @Override
-    public void channelActive(ChannelHandlerContext ctx) {
-	ctx.writeAndFlush(firstMessage);
+    public void channelActive(ChannelHandlerContext ctx) {//客户端和服务端tcp连接建立成功后，这个方法被调用，发送查询时间的指令给服务端
+        ctx.writeAndFlush(firstMessage);//发送消息给服务端
     }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg)
-	    throws Exception {
-	ByteBuf buf = (ByteBuf) msg;
-	byte[] req = new byte[buf.readableBytes()];
-	buf.readBytes(req);
-	String body = new String(req, "UTF-8");
-	System.out.println("Now is : " + body);
+            throws Exception {//服务端返回应答消息是，方法被调用
+        ByteBuf buf = (ByteBuf) msg;
+        byte[] req = new byte[buf.readableBytes()];
+        buf.readBytes(req);//从byteBuf中复制数据到req中
+        String body = new String(req, "UTF-8");
+        System.out.println("Now is : " + body);
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-	// 释放资源
-	logger.warning("Unexpected exception from downstream : "
-		+ cause.getMessage());
-	ctx.close();
+        // 释放资源
+        logger.warning("Unexpected exception from downstream : "
+                + cause.getMessage());
+        ctx.close();
     }
 }

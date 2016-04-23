@@ -22,32 +22,33 @@ import io.netty.channel.ChannelHandlerContext;
 
 /**
  * @author lilinfeng
- * @date 2014年2月14日
  * @version 1.0
+ * @date 2014年2月14日
  */
 public class TimeServerHandler extends ChannelHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg)
-	    throws Exception {
-	ByteBuf buf = (ByteBuf) msg;
-	byte[] req = new byte[buf.readableBytes()];
-	buf.readBytes(req);
-	String body = new String(req, "UTF-8");
-	System.out.println("The time server receive order : " + body);
-	String currentTime = "QUERY TIME ORDER".equalsIgnoreCase(body) ? new java.util.Date(
-		System.currentTimeMillis()).toString() : "BAD ORDER";
-	ByteBuf resp = Unpooled.copiedBuffer(currentTime.getBytes());
-	ctx.write(resp);
+            throws Exception {
+        ByteBuf buf = (ByteBuf) msg;
+        int count = buf.readableBytes();//获取缓冲区可读的字节数
+        byte[] req = new byte[count];
+        buf.readBytes(req);//把缓冲区的字节数组复制到新建的req数组
+        String body = new String(req, "UTF-8");
+        System.out.println("The time server receive order : " + body);
+        String currentTime = "QUERY TIME ORDER".equalsIgnoreCase(body) ? new java.util.Date(
+                System.currentTimeMillis()).toString() : "BAD ORDER";
+        ByteBuf resp = Unpooled.copiedBuffer(currentTime.getBytes());
+        ctx.write(resp);//为了防止频繁唤醒Selector进行消息发送，write方法并不直接将消息写入SocketChannel中，调用write方法只是把待发送消息放到发送缓冲数组中，flus才会把缓冲区数据写到scoketChannel中
     }
 
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-	ctx.flush();
+        ctx.flush();//把消息发送队列中的消息写入到socketChannel中发送出去
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-	ctx.close();
+        ctx.close();
     }
 }
