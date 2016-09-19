@@ -48,8 +48,8 @@ public class MultiplexerTimeServer implements Runnable {
 	    selector = Selector.open();
 	    servChannel = ServerSocketChannel.open();
 	    servChannel.configureBlocking(false);
-	    servChannel.socket().bind(new InetSocketAddress(port), 1024);
-	    servChannel.register(selector, SelectionKey.OP_ACCEPT);
+	    servChannel.socket().bind(new InetSocketAddress(port), 1024); //TODO  backlog参数
+	    servChannel.register(selector, SelectionKey.OP_ACCEPT);  //TODO  SelectionKey几种区别
 	    System.out.println("The time server is start in port : " + port);
 	} catch (IOException e) {
 	    e.printStackTrace();
@@ -70,7 +70,7 @@ public class MultiplexerTimeServer implements Runnable {
     public void run() {
 	while (!stop) {
 	    try {
-		selector.select(1000);
+		selector.select(1000);//
 		Set<SelectionKey> selectedKeys = selector.selectedKeys();
 		Iterator<SelectionKey> it = selectedKeys.iterator();
 		SelectionKey key = null;
@@ -103,21 +103,21 @@ public class MultiplexerTimeServer implements Runnable {
 
     private void handleInput(SelectionKey key) throws IOException {
 
-	if (key.isValid()) {
+	if (key.isValid()) {//TODO  3个is方法有什么区别
 	    // 处理新接入的请求消息
 	    if (key.isAcceptable()) {
 		// Accept the new connection
-		ServerSocketChannel ssc = (ServerSocketChannel) key.channel();
+		ServerSocketChannel ssc = (ServerSocketChannel) key.channel();//TODO  key.channel() 为什么在isAcceptable情况下得到ServerSocketChannel
 		SocketChannel sc = ssc.accept();
-		sc.configureBlocking(false);
+		sc.configureBlocking(false);//TODO  到底怎么做的异步非阻塞
 		// Add the new connection to the selector
 		sc.register(selector, SelectionKey.OP_READ);
 	    }
 	    if (key.isReadable()) {
 		// Read the data
-		SocketChannel sc = (SocketChannel) key.channel();
+		SocketChannel sc = (SocketChannel) key.channel();  //TODO  key.channel() 为什么在isReadable情况下得到SocketChannel
 		ByteBuffer readBuffer = ByteBuffer.allocate(1024);
-		int readBytes = sc.read(readBuffer);
+		int readBytes = sc.read(readBuffer);//TODO 因为sc是非阻塞的,所以需要判断,但是读到的不是需要的在什么情况下会继续读??
 		if (readBytes > 0) {
 		    readBuffer.flip();
 		    byte[] bytes = new byte[readBuffer.remaining()];
@@ -147,7 +147,7 @@ public class MultiplexerTimeServer implements Runnable {
 	    ByteBuffer writeBuffer = ByteBuffer.allocate(bytes.length);
 	    writeBuffer.put(bytes);
 	    writeBuffer.flip();
-	    channel.write(writeBuffer);
+	    channel.write(writeBuffer);//TODO  这里为什么会有半写包问题  ,怎么处理
 	}
     }
 }

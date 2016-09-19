@@ -105,8 +105,8 @@ public class TimeClientHandle implements Runnable {
         if (key.isValid()) {
             // 判断是否连接成功
             SocketChannel sc = (SocketChannel) key.channel();
-            if (key.isConnectable()) {
-                if (sc.finishConnect()) {
+            if (key.isConnectable()) {//TODO  什么情况下会出现 这里是false情况 客户端发送sync包,服务端诶呦返回ack包,  那么什么时候会继续走到这里???
+                if (sc.finishConnect()) {//TODO  这个啥意思
                     sc.register(selector, SelectionKey.OP_READ);
                     doWrite(sc);
                 } else
