@@ -28,7 +28,7 @@ public class TimeServer {
             // 绑定端口，同步等待成功
             ChannelFuture feature = b.bind(port).sync();
 
-            // 等待服务端监听端口关闭
+            // 这个是阻塞方法,等待服务端链路关闭后main方法才退出
             feature.channel().closeFuture().sync();
         } finally {
             // 优雅退出，释放线程池资源

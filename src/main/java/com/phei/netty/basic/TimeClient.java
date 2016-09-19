@@ -21,7 +21,7 @@ public class TimeClient {
         try {
             Bootstrap b = new Bootstrap();//客户端的辅助启动类
             b.group(group).channel(NioSocketChannel.class)
-                    .option(ChannelOption.TCP_NODELAY, true)
+                    .option(ChannelOption.TCP_NODELAY, true)//TODO  option中的选项都是什么意思
                     .handler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         public void initChannel(SocketChannel ch)
